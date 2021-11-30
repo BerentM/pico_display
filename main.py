@@ -1,9 +1,15 @@
-from time import sleep,localtime,time
-from classes import Board, Storage
+from time import localtime,time
+from classes import Board, Storage, Tasks
+from machine import RTC
+
+# TODO: get current date from connected PC
+rtc = RTC()
+rtc.datetime((2019, 5, 1, 4, 13, 0, 0, 0))
 
 BOARD = Board()
 BTN = BOARD.buttons
 SCREEN = BOARD.screen
+TASKS = Tasks()
 
 STORAGE = Storage()
 screen_timeout = 10
@@ -21,21 +27,24 @@ def time_now() -> str:
 
 # MAIN LOOP
 while True:
+    # GENERAL LOGIC
     if SCREEN.backlight():
         if time() - BOARD.last_update > screen_timeout:
             BOARD.update(BOARD.active_screen)
             SCREEN.toggle()
+
+    # BUTTON ACTION
     if BTN[0].active():
         BOARD.update(0)
-        SCREEN.toggle()
+        SCREEN.display(time_now())
     if BTN[1].active():
         BOARD.update(1)
-        STORAGE.clear()
-        SCREEN.display("wyczyszczono\nwpisy")
+        s = TASKS.prev_task()
+        SCREEN.display(s)
     if BTN[2].active():
         BOARD.update(2)
-        STORAGE.add_row(['kol', 'kol2','kol3'], ';')
-        SCREEN.display("dodano wpis")
+        s = TASKS.next_task()
+        SCREEN.display(s)
     if BTN[3].active():
         BOARD.update(3)
         SCREEN.display(str(STORAGE.get_row()))

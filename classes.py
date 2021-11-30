@@ -41,14 +41,14 @@ class Storage:
     def __init__(self, path="storage.csv"):
         self.path = path
         
-    def clear(self) -> str:
+    def clear(self):
         """
         Clear data in storage file.
         """
         with open(self.path, "w") as f:
             pass
 
-    def add_row(self, content:list, delimiter:str) -> str:
+    def add_row(self, content:list, delimiter:str):
         """
         Append row to storage file.
         """
@@ -57,10 +57,16 @@ class Storage:
             f.write(output+"\n")
             
     def size(self):
+        """
+        Check size of Storage file.
+        """
         with open(self.path, "r") as f:
             return len(f.readlines())
     
     def get_row(self, row_num=None):
+        """
+        Return specified (default last) row.
+        """
         if row_num is None:
             row_num = self.size()-1
         if row_num < 0:
@@ -88,12 +94,6 @@ class Button:
                 return 1
         return 0
 
-    def action(self, action, args=None):
-        """
-        Most likely unnecesary.
-        """
-        return action(*args) if args else action()
-
 
 class Board:
     def __init__(self):
@@ -108,5 +108,38 @@ class Board:
         self.active_screen = 0
         
     def update(self, screen_number):
+        """
+        Update Board state.
+        """
         self.active_screen = screen_number
         self.last_update = time()
+        
+        
+class Tasks:
+    def __init__(self):
+        self.list = [
+            "",
+            "work",
+            "focus",
+            "yt",
+            "games"
+            ]
+        self.current_task = 0
+    
+    def next_task(self) -> str:
+        if self.current_task == len(self.list)-1:
+            self.current_task = 0
+        else:
+            self.current_task += 1
+        return self.list[self.current_task]
+
+    def prev_task(self) -> str:
+        if self.current_task == 0:
+            self.current_task = len(self.list)-1
+        else:
+            self.current_task -= 1
+        return self.list[self.current_task]
+
+    def start_timer(self) -> None:
+        # TODO: implement
+        pass
