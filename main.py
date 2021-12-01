@@ -1,6 +1,6 @@
-from time import localtime,time, sleep
-from classes import Board, Storage, Tasks, Timer
+from time import localtime, time
 
+from classes import Board, Storage, Tasks, Timer
 
 BOARD = Board()
 BTN = BOARD.buttons

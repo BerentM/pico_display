@@ -1,6 +1,8 @@
-from utime import time, sleep
 from machine import I2C, Pin
+from utime import sleep, time
+
 from pico_i2c_lcd import I2cLcd
+
 
 class Screen:
     def __init__(self):
