@@ -31,7 +31,7 @@ def time_now() -> str:
     t = []
     for elem in lt:
         t.append('0'+str(elem) if elem < 10 else str(elem))
-    return f"{t[0]}-{t[1]}-{t[2]}\n{t[3]}:{t[4]}:{t[5]}"
+    return f"    {t[3]}:{t[4]}:{t[5]}"
 
 # MAIN LOOP
 while True:
@@ -61,7 +61,7 @@ while True:
         BOARD.update(3)
         SCREEN.display(str(TASKS.current_task)+"\n"+str(tim))
 
-    if tim_refresh and BOARD.active_screen == 0:
+    if tim_elapsed != tim.prev_refresh and BOARD.active_screen == 0:
         SCREEN.display(time_now(), False)
         tim.refresh(tim_elapsed)
     elif tim_refresh and BOARD.active_screen == 3:
