@@ -160,7 +160,7 @@ class Timer:
 
 
 class Task:
-    def __init__(self, name, category = 'misc'):
+    def __init__(self, category, name):
         self.category = category
         self.name = name        
         self.active = False
@@ -182,8 +182,11 @@ class Task:
 
 
 class Tasks:
-    def __init__(self, task_list=["work", "fun", "focus"]):
-        self.list = [Task(task) for task in task_list]
+    def __init__(self, task_list):
+        self.list = []
+        for tup in task_list:
+            category, name = tup
+            self.list.append(Task(category, name))
         self.current_index = 0
         self.current_task = self.list[self.current_index]
     

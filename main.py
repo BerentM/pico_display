@@ -6,7 +6,15 @@ BOARD = Board()
 BTN = BOARD.buttons
 SCREEN = BOARD.screen
 
-TASKS = Tasks()
+TASKS = Tasks(
+    task_list=[
+        ("work", "code"),
+        ("work", "mail"),
+        ("work", "ideas"),
+        ("fun", "yt"),
+        ("fun", "games"),
+    ]
+)
 
 STORAGE = Storage()
 tim = Timer()
