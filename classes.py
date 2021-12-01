@@ -151,7 +151,8 @@ class Timer:
         return self._elapsed_time
 
     def restart(self):
-        self._elapsed_time = 0
+        self.__init__()
+        # self._elapsed_time = 0
 
     def refresh(self, refresh_sec):
         self.prev_refresh = refresh_sec
