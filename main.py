@@ -31,7 +31,7 @@ def time_now() -> str:
     t = []
     for elem in lt:
         t.append('0'+str(elem) if elem < 10 else str(elem))
-    return f"    {t[3]}:{t[4]}:{t[5]}"
+    return f"   {t[2]}.{t[1]}.{t[0]}\n     {t[3]}:{t[4]}"
 
 # MAIN LOOP
 while True:
