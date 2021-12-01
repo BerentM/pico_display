@@ -1,10 +1,6 @@
 from time import localtime,time
 from classes import Board, Storage, Tasks
-from machine import RTC
 
-# TODO: get current date from connected PC
-rtc = RTC()
-rtc.datetime((2019, 5, 1, 4, 13, 0, 0, 0))
 
 BOARD = Board()
 BTN = BOARD.buttons
@@ -40,11 +36,11 @@ while True:
     if BTN[1].active():
         BOARD.update(1)
         s = TASKS.prev_task()
-        SCREEN.display(s)
+        SCREEN.display(str(s))
     if BTN[2].active():
         BOARD.update(2)
         s = TASKS.next_task()
-        SCREEN.display(s)
+        SCREEN.display(str(s))
     if BTN[3].active():
         BOARD.update(3)
         SCREEN.display(str(STORAGE.get_row()))

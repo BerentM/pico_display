@@ -1,3 +1,4 @@
+from utime import time_ns
 from machine import I2C, Pin
 from time import sleep, time
 from pico_i2c_lcd import I2cLcd
@@ -114,32 +115,67 @@ class Board:
         self.active_screen = screen_number
         self.last_update = time()
         
-        
-class Tasks:
+class Timer:
     def __init__(self):
-        self.list = [
-            "",
-            "work",
-            "focus",
-            "yt",
-            "games"
-            ]
-        self.current_task = 0
+        self._elapsed_time = 0
     
-    def next_task(self) -> str:
-        if self.current_task == len(self.list)-1:
-            self.current_task = 0
-        else:
-            self.current_task += 1
-        return self.list[self.current_task]
+    def start(self):
+        # if self._elapsed_time:
+        #     # TODO: implement pause
+        #     pass
+        # else:
+        self.start_time = time_ns()
 
-    def prev_task(self) -> str:
-        if self.current_task == 0:
-            self.current_task = len(self.list)-1
-        else:
-            self.current_task -= 1
-        return self.list[self.current_task]
+    def elapsed(self):
+        self._elapsed_time = time_ns() - self.start_time
+        return self._elapsed_time
 
-    def start_timer(self) -> None:
-        # TODO: implement
-        pass
+    def stop(self):
+        self._elapsed_time = time_ns() - self.start_time
+        return self._elapsed_time
+        
+
+
+class Task:
+    def __init__(self, name, category = 'misc'):
+        self.category = category
+        self.name = name        
+        self.active = False
+
+    def __repr__(self):
+        return f"{self.category}:{self.name}"
+
+    def start(self):
+        self.active = True
+        self.tim = Timer()
+        self.tim.start()
+
+    def status(self):
+        return self.tim.elapsed()
+
+    def stop(self):
+        self.active = False
+        self.tim.stop()
+
+
+class Tasks:
+    def __init__(self, task_list=["work", "fun", "focus"]):
+        self.list = [Task(task) for task in task_list]
+        self.current_index = 0
+        self.current_task = self.list[self.current_index]
+    
+    def next_task(self) -> Task:
+        if self.current_index == len(self.list)-1:
+            self.current_index = 0
+        else:
+            self.current_index += 1
+        self.current_task = self.list[self.current_index]
+        return self.current_task
+
+    def prev_task(self) -> Task:
+        if self.current_index == 0:
+            self.current_index = len(self.list)-1
+        else:
+            self.current_index -= 1
+        self.current_task = self.list[self.current_index]
+        return self.current_task
