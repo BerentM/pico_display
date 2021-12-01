@@ -7,6 +7,7 @@ class Screen:
         i2c = I2C(0, sda=Pin(0), scl=Pin(1), freq=400000)
         I2C_ADDR = i2c.scan()[0]
         self.lcd = I2cLcd(i2c, I2C_ADDR, 2, 16)
+        self._cur_displayed = ''
 
     def clear(self):
         """
@@ -30,10 +31,12 @@ class Screen:
         """
         Put text on display.
         """
-        self.lcd.clear()
-        if not self.lcd.backlight and switch_light:
-            self.lcd.backlight_on()
-        self.lcd.putstr(text)
+        if self._cur_displayed != text:
+            self.lcd.clear()
+            if not self.lcd.backlight and switch_light:
+                self.lcd.backlight_on()
+            self.lcd.putstr(text)
+            self._cur_displayed = text
         
 
 
