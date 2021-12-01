@@ -117,6 +117,8 @@ class Board:
 class Timer:
     def __init__(self):
         self._elapsed_time = 0
+        self.prev_refresh = -1
+        self.start_time = time()
         self.intervals = (
             ('weeks', 604800),  # 60 * 60 * 24 * 7
             ('days', 86400),    # 60 * 60 * 24
@@ -124,6 +126,7 @@ class Timer:
             ('m', 60),
             ('s', 1),
         )
+
     def __repr__(self):
         return f"{self.display_time(self._elapsed_time)}"
 
@@ -139,13 +142,6 @@ class Timer:
                 result.append(f"{value}{name}")
         return ':'.join(result[:granularity]) 
         
-    def start(self):
-        # if self._elapsed_time:
-        #     # TODO: implement pause
-        #     pass
-        # else:
-        self.start_time = time()
-
     def elapsed(self):
         self._elapsed_time = time() - self.start_time
         return self._elapsed_time
@@ -156,6 +152,9 @@ class Timer:
 
     def restart(self):
         self._elapsed_time = 0
+
+    def refresh(self, refresh_sec):
+        self.prev_refresh = refresh_sec
         
 
 
@@ -171,7 +170,6 @@ class Task:
     def start(self):
         self.active = True
         self.tim = Timer()
-        self.tim.start()
 
     def status(self):
         return self.tim.elapsed()
