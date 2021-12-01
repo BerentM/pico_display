@@ -1,14 +1,21 @@
-from time import localtime,time
-from classes import Board, Storage, Tasks
+from time import localtime,time, sleep
+from classes import Board, Storage, Tasks, Timer
 
 
 BOARD = Board()
 BTN = BOARD.buttons
 SCREEN = BOARD.screen
+
 TASKS = Tasks()
 
 STORAGE = Storage()
+tim = Timer()
+tim.start()
+
 screen_timeout = 10
+
+#TODO: move to Timer class
+tim_refreshed = 0
 
 def time_now() -> str:
     """
@@ -28,6 +35,12 @@ while True:
         if time() - BOARD.last_update > screen_timeout:
             BOARD.update(BOARD.active_screen)
             SCREEN.toggle()
+    
+    tim_elapsed = tim.elapsed()
+    elapsed_modulo = tim_elapsed % 5
+    if elapsed_modulo == 0 and BOARD.active_screen == 0 and tim_elapsed != tim_refreshed:
+        SCREEN.display(str(tim), False)
+        tim_refreshed = tim_elapsed
 
     # BUTTON ACTION
     if BTN[0].active():

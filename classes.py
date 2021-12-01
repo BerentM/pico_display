@@ -1,6 +1,5 @@
-from utime import time_ns
+from utime import time, sleep
 from machine import I2C, Pin
-from time import sleep, time
 from pico_i2c_lcd import I2cLcd
 
 class Screen:
@@ -27,12 +26,12 @@ class Screen:
         else:
             self.lcd.backlight_on()
             
-    def display(self, text):
+    def display(self, text, switch_light=True):
         """
         Put text on display.
         """
         self.lcd.clear()
-        if not self.lcd.backlight:
+        if not self.lcd.backlight and switch_light:
             self.lcd.backlight_on()
         self.lcd.putstr(text)
         
@@ -118,21 +117,45 @@ class Board:
 class Timer:
     def __init__(self):
         self._elapsed_time = 0
-    
+        self.intervals = (
+            ('weeks', 604800),  # 60 * 60 * 24 * 7
+            ('days', 86400),    # 60 * 60 * 24
+            ('h', 3600),    # 60 * 60
+            ('m', 60),
+            ('s', 1),
+        )
+    def __repr__(self):
+        return f"{self.display_time(self._elapsed_time)}"
+
+    def display_time(self, seconds, granularity=2):
+        result = []
+
+        for name, count in self.intervals:
+            value = seconds // count
+            if value:
+                seconds -= value * count
+                if value == 1 and name != 's':
+                    name = name.rstrip('s')
+                result.append(f"{value}{name}")
+        return ':'.join(result[:granularity]) 
+        
     def start(self):
         # if self._elapsed_time:
         #     # TODO: implement pause
         #     pass
         # else:
-        self.start_time = time_ns()
+        self.start_time = time()
 
     def elapsed(self):
-        self._elapsed_time = time_ns() - self.start_time
+        self._elapsed_time = time() - self.start_time
         return self._elapsed_time
 
     def stop(self):
-        self._elapsed_time = time_ns() - self.start_time
+        self._elapsed_time = time() - self.start_time
         return self._elapsed_time
+
+    def restart(self):
+        self._elapsed_time = 0
         
 
 
