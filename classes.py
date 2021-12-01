@@ -33,10 +33,10 @@ class Screen:
         """
         Put text on display.
         """
+        if not self.lcd.backlight and switch_light:
+            self.lcd.backlight_on()
         if self._cur_displayed != text:
             self.lcd.clear()
-            if not self.lcd.backlight and switch_light:
-                self.lcd.backlight_on()
             self.lcd.putstr(text)
             self._cur_displayed = text
         
