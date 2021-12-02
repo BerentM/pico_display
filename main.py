@@ -9,11 +9,13 @@ SCREEN = BOARD.screen
 TASKS = Tasks(
     task_list=[
         ("work", "code"),
-        ("work", "mail"),
+        ("work", "writing"),
         ("work", "meetings"),
         ("work", "ideas"),
         ("fun", "yt"),
         ("fun", "games"),
+        ("misc", "web"),
+        ("other", "other"),
     ]
 )
 
@@ -23,9 +25,11 @@ tim = Timer()
 screen_timeout = 20
 
 def time_now() -> str:
-    """
-    Returns formatted timestamp.
+    """Format time.localtime.
     Implemented due to lack of strftime func.
+
+    Returns:
+        str: formated text
     """
     lt = localtime()
     t = []
@@ -34,6 +38,11 @@ def time_now() -> str:
     return f"   {t[2]}.{t[1]}.{t[0]}\n     {t[3]}:{t[4]}"
 
 def display_task_time() -> str:
+    """Nicely formatted task & time.
+
+    Returns:
+        str: formated text
+    """
     try:
         task, t = STORAGE.get_row().split(";")
         return str(task)+"\n"+str(tim.display_time(int(t)))
@@ -72,6 +81,7 @@ while True:
     if tim_elapsed != tim.prev_refresh and BOARD.active_screen == 0:
         SCREEN.display(time_now(), False)
         tim.refresh(tim_elapsed)
+
     elif tim_refresh and BOARD.active_screen == 3:
         SCREEN.display(display_task_time(), False)
         tim.refresh(tim_elapsed)
