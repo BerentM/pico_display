@@ -174,6 +174,7 @@ class Board:
         
 class Timer:
     def __init__(self):
+        self.active = True
         self._elapsed_time = 0
         self.prev_refresh = -1
         self.start_time = time()
@@ -226,13 +227,24 @@ class Timer:
         self.__init__()
 
     def refresh(self, refresh_sec: int):
-        """Update Timer state.
+        """
+        Update Timer state.
 
         Args:
             refresh_sec (int): At which second, starting from init timer was refreshed.
         """
         self.prev_refresh = refresh_sec
-        
+
+    def toggle(self):
+        """
+        Toggle Timer state.
+        Used for pause/resume.
+        """
+        if self.active:
+            self.active = False
+        else:
+            self.restart()
+
 
 
 class Task:
