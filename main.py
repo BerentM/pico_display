@@ -33,6 +33,13 @@ def time_now() -> str:
         t.append('0'+str(elem) if elem < 10 else str(elem))
     return f"   {t[2]}.{t[1]}.{t[0]}\n     {t[3]}:{t[4]}"
 
+def display_task_time() -> str:
+    try:
+        task, t = STORAGE.get_row().split(";")
+        return str(task)+"\n"+str(tim.display_time(int(t)))
+    except ValueError:
+        return str(TASKS.current_task)+"\n"+str(tim)
+
 # MAIN LOOP
 while True:
     refresh_frequency = 5
@@ -60,21 +67,13 @@ while True:
         tim.restart()
     if BTN[3].active():
         BOARD.update(3)
-        try:
-            task, t = STORAGE.get_row().split(";")
-            SCREEN.display(str(task)+"\n"+str(t))
-        except ValueError:
-            SCREEN.display(str(TASKS.current_task)+"\n"+str(tim))
+        SCREEN.display(display_task_time())
 
     if tim_elapsed != tim.prev_refresh and BOARD.active_screen == 0:
         SCREEN.display(time_now(), False)
         tim.refresh(tim_elapsed)
     elif tim_refresh and BOARD.active_screen == 3:
-        try:
-            task, t = STORAGE.get_row().split(";")
-            SCREEN.display(str(task)+"\n"+str(t), False)
-        except ValueError:
-            SCREEN.display(str(TASKS.current_task)+"\n"+str(tim), False)
+        SCREEN.display(display_task_time(), False)
         tim.refresh(tim_elapsed)
     
     if tim_refresh and tim_elapsed >= refresh_frequency:
@@ -84,3 +83,4 @@ while True:
         else:
             STORAGE.del_row()
             STORAGE.add_row([TASKS.current_task, int(last_row[1])+refresh_frequency], ";")
+        tim.refresh(tim_elapsed)
