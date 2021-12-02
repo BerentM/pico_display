@@ -57,6 +57,7 @@ class Storage:
         """
         Append row to storage file.
         """
+        content = [str(elem) for elem in content]
         output = delimiter.join(content)
         with open(self.path, "a") as f:
             f.write(output+"\n")
@@ -78,6 +79,20 @@ class Storage:
             return "NO DATA!"
         with open(self.path, "r") as f:
             return f.readlines()[row_num]
+
+    def del_row(self, row_num=None):
+        if row_num is None:
+            row_num = self.size()-1
+        if row_num < 0:
+            return "NO DATA!"
+        with open(self.path, "r") as f:
+            lines = f.readlines()
+
+        output = lines[:row_num]
+        output.extend(lines[row_num+1:])
+        with open(self.path, "w") as f:
+            for row in output:
+                f.write(row)
 
 
 class Button:

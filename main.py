@@ -35,8 +35,9 @@ def time_now() -> str:
 
 # MAIN LOOP
 while True:
+    refresh_frequency = 5
     tim_elapsed = tim.elapsed()
-    tim_refresh = tim_elapsed % 5 == 0 and tim_elapsed != tim.prev_refresh
+    tim_refresh = tim_elapsed % refresh_frequency == 0 and tim_elapsed != tim.prev_refresh
     # GENERAL LOGIC
     if SCREEN.backlight():
         if time() - BOARD.last_update > screen_timeout:
@@ -59,20 +60,27 @@ while True:
         tim.restart()
     if BTN[3].active():
         BOARD.update(3)
-        SCREEN.display(str(TASKS.current_task)+"\n"+str(tim))
+        try:
+            task, t = STORAGE.get_row().split(";")
+            SCREEN.display(str(task)+"\n"+str(t))
+        except ValueError:
+            SCREEN.display(str(TASKS.current_task)+"\n"+str(tim))
 
     if tim_elapsed != tim.prev_refresh and BOARD.active_screen == 0:
         SCREEN.display(time_now(), False)
         tim.refresh(tim_elapsed)
     elif tim_refresh and BOARD.active_screen == 3:
-        SCREEN.display(str(TASKS.current_task)+"\n"+str(tim), False)
+        try:
+            task, t = STORAGE.get_row().split(";")
+            SCREEN.display(str(task)+"\n"+str(t), False)
+        except ValueError:
+            SCREEN.display(str(TASKS.current_task)+"\n"+str(tim), False)
         tim.refresh(tim_elapsed)
     
-    # TODO: save elapsed time in seconds into file
-    #   1. read last row
-    #   2. if row task is different than actual task 
-    #       2a. add new row
-    #   3. else:
-    #       3. update last row elapsed time
-    #   4. repeat every 5 seconds
-
+    if tim_refresh and tim_elapsed >= refresh_frequency:
+        last_row = STORAGE.get_row().split(';')
+        if last_row[0] != str(TASKS.current_task):
+            STORAGE.add_row([TASKS.current_task, tim_elapsed], ";")
+        else:
+            STORAGE.del_row()
+            STORAGE.add_row([TASKS.current_task, int(last_row[1])+refresh_frequency], ";")
