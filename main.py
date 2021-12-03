@@ -21,6 +21,8 @@ TASKS = Tasks(
 
 STORAGE = Storage()
 tim = Timer()
+refresh_frequency = 5
+tim_elapsed, tim_refresh = 0,0
 
 screen_timeout = 20
 
@@ -44,9 +46,19 @@ def display_task_time() -> str:
     Returns:
         str: formated text
     """
+    # TODO: simplify that spaghetti
     try:
         task, t = STORAGE.get_row().split(";")
-        return str(task)+"\n"+str(tim.display_time(int(t)))
+        if task == str(TASKS.current_task):
+            if tim.active:
+                return str(task)+"\n"+str(tim.display_time(int(t)))
+            else:
+                return str(task)+"\n"+str("continue")
+        else:
+            if tim.active:
+                return str(TASKS.current_task)+"\n"+str(tim)
+            else:
+                return str(TASKS.current_task)+"\n"+str("start")
     except ValueError:
         return str(TASKS.current_task)+"\n"+str(tim)
     
@@ -57,8 +69,8 @@ def refresh_func(refresh_frequency):
 
 # MAIN LOOP
 while True:
-    refresh_frequency = 5
-    tim_elapsed, tim_refresh = refresh_func(refresh_frequency)
+    if tim.active:
+        tim_elapsed, tim_refresh = refresh_func(refresh_frequency)
     # GENERAL LOGIC
     if SCREEN.backlight():
         if time() - BOARD.last_update > screen_timeout:
@@ -70,43 +82,42 @@ while True:
         BOARD.update(0)
         SCREEN.display(time_now())
     if BTN[1].active():
+        if BOARD.active_screen != 0:
+            s = TASKS.prev_task()
+            tim.restart()
         BOARD.update(1)
-        s = TASKS.prev_task()
-        SCREEN.display(str(s))
-        tim.restart()
+        SCREEN.display(display_task_time())
     if BTN[2].active():
+        if BOARD.active_screen != 0:
+            s = TASKS.next_task()
+            tim.restart()
         BOARD.update(2)
-        s = TASKS.next_task()
-        SCREEN.display(str(s))
-        tim.restart()
+        SCREEN.display(display_task_time())
     if BTN[3].active():
-        if BOARD.active_screen == 3:
-            # if on the same screen button work as pause/resume
-            # TODO: do some test's, it looks like there is 5sec added on pause/resume
+        if BOARD.active_screen != 0:
             tim.toggle()
-            BOARD.update(3)
-            if tim.active:
+            if tim.active is False:
                 tim_elapsed, tim_refresh = refresh_func(refresh_frequency)
-                SCREEN.display(display_task_time())
-            else:
-                SCREEN.display("pause")
+            SCREEN.display(display_task_time())
         else:
-            BOARD.update(3)
+            # TODO: jump to previously active task - read it from file
+            # if file is empty, display first task from list
+            BOARD.update(1)
             SCREEN.display(display_task_time())
 
     if tim_elapsed != tim.prev_refresh and BOARD.active_screen == 0:
         SCREEN.display(time_now(), False)
         tim.refresh(tim_elapsed)
 
-    elif tim_refresh and tim.active and BOARD.active_screen == 3:
+    elif tim_refresh and tim.active and BOARD.active_screen in (1,2):
         SCREEN.display(display_task_time(), False)
         tim.refresh(tim_elapsed)
     
-    if tim_refresh and tim_elapsed >= refresh_frequency and tim.active:
+    if tim_refresh and tim_elapsed >= refresh_frequency and tim.active and tim_elapsed >= 5:
         last_row = STORAGE.get_row().split(';')
         if last_row[0] != str(TASKS.current_task):
             STORAGE.add_row([TASKS.current_task, tim_elapsed], ";")
-        else:
+        elif last_row[0] == str(TASKS.current_task):
             STORAGE.del_row()
             STORAGE.add_row([TASKS.current_task, int(last_row[1])+refresh_frequency], ";")
         tim.refresh(tim_elapsed)

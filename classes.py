@@ -174,7 +174,7 @@ class Board:
         
 class Timer:
     def __init__(self):
-        self.active = True
+        self.active = False
         self._elapsed_time = 0
         self.prev_refresh = -1
         self.start_time = time()
@@ -208,6 +208,9 @@ class Timer:
                 if value == 1 and name != 's':
                     name = name.rstrip('s')
                 result.append(f"{value}{name}")
+        # removing seconds if task takes more than 60 seconds
+        if len(result) > 1:
+            result = result[:len(result)-1]
         return ':'.join(result[:granularity]) 
         
     def elapsed(self):
@@ -244,6 +247,7 @@ class Timer:
             self.active = False
         else:
             self.restart()
+            self.active = True
 
 
 
